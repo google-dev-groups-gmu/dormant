@@ -20,7 +20,8 @@ type Section struct {
 	Section   string `json:"section" firestore:"section"`     // "001"
 	Professor string `json:"professor" firestore:"professor"`
 	IsLab     bool   `json:"is_lab" firestore:"is_lab"`
-	// section_type is "lecture" when section starts with 0, otherwise "lab"
+	IsOnline  bool   `json:"is_online" firestore:"is_online"`
+	// section_type comes from Banner schedule type (lecture, lab, recitation, etc.)
 	SectionType string `json:"section_type" firestore:"section_type"`
 
 	// backend data for algorithm

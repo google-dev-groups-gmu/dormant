@@ -20,6 +20,11 @@ type BannerSection struct {
 	CourseNumber   string `json:"courseNumber"`
 	SequenceNumber string `json:"sequenceNumber"`
 	Title          string `json:"courseTitle"`
+	// Banner provides explicit schedule type and credit metadata.
+	ScheduleTypeDescription string   `json:"scheduleTypeDescription"`
+	CreditHours             *float64 `json:"creditHours"`
+	CreditHourLow           *float64 `json:"creditHourLow"`
+	CreditHourHigh          *float64 `json:"creditHourHigh"`
 
 	Faculty []struct {
 		DisplayName string `json:"displayName"`

@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -209,6 +210,7 @@ func main() {
 						Department: rawSec.Subject,
 						Code:       rawSec.CourseNumber,
 						Title:      rawSec.Title,
+						Credits:    parseCredits(rawSec),
 					}
 
 					go func(c types.Course) {
@@ -311,13 +313,16 @@ func getStr(s *string) string {
 
 // parse into section type
 func parseBannerSection(raw types.BannerSection) types.Section {
-	sectionType, isLab := classifySection(raw.SequenceNumber)
+	credits := parseCredits(raw)
+	isOnline := inferOnline(raw)
+	sectionType, isLab := classifySection(raw.ScheduleTypeDescription, credits)
 
 	sec := types.Section{
 		ID:          raw.CRN,                        // CRN as the unique ID
 		CourseID:    raw.Subject + raw.CourseNumber, // ex) CS100
 		Section:     raw.SequenceNumber,
 		IsLab:       isLab,
+		IsOnline:    isOnline,
 		SectionType: sectionType,
 		// first professor if available
 		Professor: "TBA",
@@ -366,17 +371,79 @@ func parseBannerSection(raw types.BannerSection) types.Section {
 	return sec
 }
 
-func classifySection(section string) (sectionType string, isLab bool) {
-	normalized := strings.TrimSpace(section)
-	if normalized == "" {
+func parseCredits(raw types.BannerSection) int {
+	if raw.CreditHours != nil {
+		return int(math.Round(*raw.CreditHours))
+	}
+	if raw.CreditHourHigh != nil {
+		return int(math.Round(*raw.CreditHourHigh))
+	}
+	if raw.CreditHourLow != nil {
+		return int(math.Round(*raw.CreditHourLow))
+	}
+	return 0
+}
+
+func inferOnline(raw types.BannerSection) bool {
+	normalizedType := strings.ToLower(strings.TrimSpace(raw.ScheduleTypeDescription))
+	if strings.Contains(normalizedType, "online") ||
+		strings.Contains(normalizedType, "distance") ||
+		strings.Contains(normalizedType, "virtual") ||
+		strings.Contains(normalizedType, "web") ||
+		strings.Contains(normalizedType, "asynchronous") ||
+		strings.Contains(normalizedType, "synchronous") {
+		return true
+	}
+
+	if len(raw.MeetingsFaculty) == 0 {
+		return false
+	}
+
+	hasTimedMeeting := false
+	hasPhysicalLocation := false
+	for _, mf := range raw.MeetingsFaculty {
+		mt := mf.MeetingTime
+		if mt.BeginTime == nil || mt.EndTime == nil {
+			continue
+		}
+		hasTimedMeeting = true
+
+		building := strings.TrimSpace(getStr(mt.Building))
+		room := strings.TrimSpace(getStr(mt.Room))
+		if building != "" || room != "" {
+			hasPhysicalLocation = true
+			break
+		}
+	}
+
+	// Meetings with no physical location are treated as online.
+	return hasTimedMeeting && !hasPhysicalLocation
+}
+
+func classifySection(scheduleType string, credits int) (sectionType string, isLab bool) {
+	normalizedType := strings.ToLower(strings.TrimSpace(scheduleType))
+
+	// Strongest signal: explicit Banner schedule type.
+	if strings.Contains(normalizedType, "lab") || strings.Contains(normalizedType, "laboratory") {
+		return "lab", true
+	}
+	if strings.Contains(normalizedType, "recitation") {
+		return "recitation", false
+	}
+	if strings.Contains(normalizedType, "independent study") {
+		return "independent-study", false
+	}
+	if strings.Contains(normalizedType, "lecture") {
 		return "lecture", false
 	}
 
-	if strings.HasPrefix(normalized, "0") {
-		return "lecture", false
+	// Secondary signal: low-credit sections are usually labs.
+	if credits > 0 && credits <= 1 {
+		return "lab", true
 	}
 
-	return "lab", true
+	// Conservative fallback: keep as lecture to avoid hiding sections from schedule generation.
+	return "lecture", false
 }
 
 // fetch all subjects from banner

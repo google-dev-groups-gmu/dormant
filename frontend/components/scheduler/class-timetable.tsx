@@ -31,15 +31,18 @@ export default function ClassTimetable({ schedule }: ClassTimetableProps) {
 
             {timeSlots.map((timeLabel) => {
                 const slotStart = timeStringToMinutes(timeLabel);
-                const slotEnd = slotStart + 30;
+                const slotEnd = slotStart + 15;
+                const isHalfHour = slotStart % 30 === 0;
 
                 return (
                     <div
                         key={timeLabel}
-                        className="grid grid-cols-[70px_repeat(5,1fr)] border-b last:border-b-0 border-ring/30 min-h-[30px]"
+                        className={`grid grid-cols-[70px_repeat(5,1fr)] border-ring/30 min-h-[10px] ${
+                            !isHalfHour ? "border-b" : ""
+                        } last:border-b-0`}
                     >
                         <div className="border-r border-ring/30 text-xs text-muted-foreground flex items-start justify-center pt-1 bg-muted/5">
-                            {timeLabel}
+                            {isHalfHour ? timeLabel : ""}
                         </div>
 
                         {[1, 2, 3, 4, 5].map((dayIndex) => {
@@ -99,26 +102,25 @@ export default function ClassTimetable({ schedule }: ClassTimetableProps) {
                                                         ? "rounded-b-md border-b"
                                                         : ""
                                                 }
-                                                border-ring/30
                                             `}
                                         >
                                             {isStart && (
-                                                <>
+                                                <div className="flex items-baseline justify-between">
                                                     <div className="font-semibold truncate">
                                                         {
                                                             matchedSection.course_id
                                                         }
                                                     </div>
-                                                    <div className="text-[10px] truncate">
+                                                    <div className="text-[9px] truncate">
                                                         {
                                                             matchedMeeting.location
                                                         }
                                                     </div>
-                                                </>
+                                                </div>
                                             )}
                                             <div className="flex items-end h-full">
                                                 {isEnd && (
-                                                    <div className="text-[10px] pb-1">
+                                                    <div className="text-[9px] pb-1 justify-end flex w-full">
                                                         {formatTime(
                                                             matchedMeeting.start_time,
                                                         )}{" "}

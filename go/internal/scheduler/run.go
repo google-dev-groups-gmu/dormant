@@ -17,7 +17,7 @@ import (
 	"github.com/Google-Developer-Groups-GMU/dormant/go/internal/types"
 )
 
-const maxGeneratedSchedules = 50
+const maxGeneratedSchedules = 100
 
 func Run(ctx context.Context, courseIDs []string, userID string) ([]types.Schedule, error) {
 	if len(courseIDs) == 0 {
@@ -38,6 +38,12 @@ func Run(ctx context.Context, courseIDs []string, userID string) ([]types.Schedu
 	}
 
 	for _, section := range sections {
+		// only consider lecture sections for the main schedule generation;
+		// labs can be added in a secondary pass after we have a base schedule of lectures that work together
+		if section.SectionType != "lecture" {
+			continue
+		}
+
 		normalized := normalizeCourseID(section.CourseID)
 		if requestedID, ok := requestedByNormalized[normalized]; ok {
 			// Always bucket under requested IDs so assignment variables/domains align.
