@@ -2,6 +2,8 @@ package catalog
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log"
 	"strings"
 	"sync"
@@ -9,6 +11,8 @@ import (
 	"cloud.google.com/go/firestore"
 	"github.com/Google-Developer-Groups-GMU/dormant/go/internal/types"
 	"google.golang.org/api/iterator"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 var (
@@ -20,6 +24,9 @@ var (
 // NOTE: called at server startup to warm up the cache
 func LoadCache(ctx context.Context, client *firestore.Client) error {
 	log.Println("warming up course cache...")
+	if client == nil {
+		return errors.New("firestore client is nil")
+	}
 
 	// Optimization: We only need metadata for the search bar.
 	// We don't need 'SectionIDs' or 'Description' here if we want to save RAM,
@@ -34,6 +41,14 @@ func LoadCache(ctx context.Context, client *firestore.Client) error {
 			break
 		}
 		if err != nil {
+			if st, ok := status.FromError(err); ok {
+				switch st.Code() {
+				case codes.PermissionDenied:
+					return fmt.Errorf("firestore permission denied while reading courses. Ensure the active principal has IAM role roles/datastore.user (or higher) for project/database: %w", err)
+				case codes.FailedPrecondition:
+					return fmt.Errorf("firestore API data access is disabled for this database. Enable Firestore API data access in the Google Cloud console: %w", err)
+				}
+			}
 			return err
 		}
 

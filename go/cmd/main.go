@@ -24,7 +24,7 @@ func main() {
 
 	// init firestore client
 	if err := firestore.Init(); err != nil {
-		log.Printf("Failed to initialize Firestore: %v", err)
+		log.Fatalf("Failed to initialize Firestore: %v", err)
 	}
 	defer firestore.Close()
 

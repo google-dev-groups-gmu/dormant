@@ -75,7 +75,7 @@ export default function LandingPage() {
                             className="my-12 flex items-center justify-center text-muted-foreground text-sm sm:text-base font-sans font-medium border border-muted-foreground/10 px-6 py-1 rounded-full inset-shadow-sm hover:cursor-pointer hover:bg-muted/80"
                             onClick={() => {
                                 window.location.href =
-                                    "http://localhost:5000/auth/google/login";
+                                    "http://localhost:5000/auth/google";
                             }}
                         >
                             Start for free with{" "}

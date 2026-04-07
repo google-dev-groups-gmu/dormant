@@ -37,7 +37,7 @@ export function useAuth() {
                     setUser(null);
                 }
             } catch (error) {
-                console.error("Failed to fetch user", error);
+                console.warn("Failed to fetch user", error);
                 setUser(null);
             } finally {
                 setLoading(false);
