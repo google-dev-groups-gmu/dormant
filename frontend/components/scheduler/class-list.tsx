@@ -65,7 +65,10 @@ export default function ClassListTable({
                             </Table.TableCell>
                             <Table.TableCell>
                                 <div className="flex flex-col">
-                                    {section.meetings.map((m, idx) => (
+                                    {(Array.isArray(section.meetings)
+                                        ? section.meetings
+                                        : []
+                                    ).map((m, idx) => (
                                         <div
                                             key={idx}
                                             className="text-xs text-muted-foreground flex items-center"
@@ -83,7 +86,10 @@ export default function ClassListTable({
                             </Table.TableCell>
                             <Table.TableCell>
                                 <div className="flex flex-col">
-                                    {section.meetings.map((m, idx) => (
+                                    {(Array.isArray(section.meetings)
+                                        ? section.meetings
+                                        : []
+                                    ).map((m, idx) => (
                                         <div
                                             key={idx}
                                             className="text-xs text-muted-foreground flex items-center"

@@ -52,7 +52,11 @@ export default function ClassTimetable({ schedule }: ClassTimetableProps) {
                             let isEnd = false;
 
                             for (const section of schedule) {
-                                const meeting = section.meetings.find((m) => {
+                                const meetings = Array.isArray(section.meetings)
+                                    ? section.meetings
+                                    : [];
+
+                                const meeting = meetings.find((m) => {
                                     const start = ensureMinutes(m.start_time);
                                     const end = ensureMinutes(m.end_time);
 

@@ -65,7 +65,11 @@ function buildBlocks(schedule: Section[]): PositionedBlock[] {
     const blocks: PositionedBlock[] = [];
 
     for (const section of schedule) {
-        for (const meeting of section.meetings) {
+        const meetings = Array.isArray(section.meetings)
+            ? section.meetings
+            : [];
+
+        for (const meeting of meetings) {
             if (meeting.day < 1 || meeting.day > 5) {
                 continue;
             }
