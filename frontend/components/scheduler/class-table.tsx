@@ -15,6 +15,8 @@ import {
 import { ClassTableProps, timeSlots } from "@/lib/scheduler";
 
 export default function ClassTable({ schedule, onUpdate }: ClassTableProps) {
+    const isEditable = typeof onUpdate === "function";
+
     // handler for removing class by id
     // this component is not very smart and doesnt manage its own state
     // so we call onUpdate with the new schedule
@@ -37,14 +39,16 @@ export default function ClassTable({ schedule, onUpdate }: ClassTableProps) {
                             <Table.TableHead>Professor</Table.TableHead>
                             <Table.TableHead>Dates</Table.TableHead>
                             <Table.TableHead>Location</Table.TableHead>
-                            <Table.TableHead className="w-[50px]"></Table.TableHead>
+                            {isEditable && (
+                                <Table.TableHead className="w-[50px]"></Table.TableHead>
+                            )}
                         </Table.TableRow>
                     </Table.TableHeader>
                     <Table.TableBody>
                         {schedule.length === 0 && (
                             <Table.TableRow>
                                 <Table.TableCell
-                                    colSpan={5}
+                                    colSpan={isEditable ? 6 : 5}
                                     className="text-center h-24 text-muted-foreground"
                                 >
                                     No classes added.
@@ -96,16 +100,20 @@ export default function ClassTable({ schedule, onUpdate }: ClassTableProps) {
                                         ))}
                                     </div>
                                 </Table.TableCell>
-                                <Table.TableCell>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 text-muted-foreground hover:text-red-600 hover:cursor-pointer"
-                                        onClick={() => handleRemove(section.id)}
-                                    >
-                                        <Trash2 strokeWidth={1.5} />
-                                    </Button>
-                                </Table.TableCell>
+                                {isEditable && (
+                                    <Table.TableCell>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8 text-muted-foreground hover:text-red-600 hover:cursor-pointer"
+                                            onClick={() =>
+                                                handleRemove(section.id)
+                                            }
+                                        >
+                                            <Trash2 strokeWidth={1.5} />
+                                        </Button>
+                                    </Table.TableCell>
+                                )}
                             </Table.TableRow>
                         ))}
                     </Table.TableBody>
@@ -156,10 +164,10 @@ export default function ClassTable({ schedule, onUpdate }: ClassTableProps) {
                                         const meeting = section.meetings.find(
                                             (m) => {
                                                 const start = ensureMinutes(
-                                                    m.start_time
+                                                    m.start_time,
                                                 );
                                                 const end = ensureMinutes(
-                                                    m.end_time
+                                                    m.end_time,
                                                 );
 
                                                 // IMPORTANT: standard overlap check
@@ -172,7 +180,7 @@ export default function ClassTable({ schedule, onUpdate }: ClassTableProps) {
                                                     start < slotEnd &&
                                                     end > slotStart
                                                 );
-                                            }
+                                            },
                                         );
 
                                         if (meeting) {
@@ -182,17 +190,17 @@ export default function ClassTable({ schedule, onUpdate }: ClassTableProps) {
                                             // we need to know if this slot is the start of the meeting
                                             // so we can style it differently
                                             const start = ensureMinutes(
-                                                meeting.start_time
+                                                meeting.start_time,
                                             );
                                             isStart =
                                                 start >= slotStart &&
                                                 start < slotEnd;
                                             isEnd =
                                                 ensureMinutes(
-                                                    meeting.end_time
+                                                    meeting.end_time,
                                                 ) > slotStart &&
                                                 ensureMinutes(
-                                                    meeting.end_time
+                                                    meeting.end_time,
                                                 ) <= slotEnd;
                                             break;
                                         }
@@ -215,7 +223,7 @@ export default function ClassTable({ schedule, onUpdate }: ClassTableProps) {
                                                         }
                                                         ${
                                                             ensureMinutes(
-                                                                matchedMeeting.end_time
+                                                                matchedMeeting.end_time,
                                                             ) <= slotEnd
                                                                 ? "rounded-b-md border-b"
                                                                 : ""
@@ -241,11 +249,11 @@ export default function ClassTable({ schedule, onUpdate }: ClassTableProps) {
                                                             {isEnd && (
                                                                 <div className="text-[10px] pb-1">
                                                                     {formatTime(
-                                                                        matchedMeeting.start_time
+                                                                        matchedMeeting.start_time,
                                                                     )}{" "}
                                                                     -{" "}
                                                                     {formatTime(
-                                                                        matchedMeeting.end_time
+                                                                        matchedMeeting.end_time,
                                                                     )}
                                                                 </div>
                                                             )}

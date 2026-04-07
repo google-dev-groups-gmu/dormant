@@ -116,10 +116,13 @@ func main() {
 
 	// search for classes
 	// use this to get all subjects in prod
-	// subjects, err := GetSubjects(client, token)
+	subjects, err := GetSubjects(client, token)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// in local we are only testing CS and MATH
-	var subjects = []string{"CS", "MATH"}
+	// var subjects = []string{"CS", "MATH"}
 	fmt.Printf("== 3 == fetching classes for %s...\n", subjects)
 
 	// for concurrency

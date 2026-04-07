@@ -12,6 +12,7 @@ import gdg_logo from "@/public/logo.png";
 import { Spinner } from "@/components/ui/spinner";
 import ClassList from "@/components/scheduler/class-list";
 import ClassTable from "@/components/scheduler/class-table";
+import ScheduleGeneratorPanel from "@/components/scheduler/plan/schedule-generator-panel";
 import { BACKEND_URL } from "@/lib/constants";
 import { Section } from "@/lib/classes";
 
@@ -48,7 +49,7 @@ export default function SchedulerPage() {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload),
-                }
+                },
             );
             if (!res.ok) throw new Error("Failed to save");
             console.log("Auto-saved to Firestore");
@@ -64,7 +65,7 @@ export default function SchedulerPage() {
             try {
                 // fetch users schedules
                 const res = await fetch(
-                    `${BACKEND_URL}/api/users/${user.UserID}/schedules`
+                    `${BACKEND_URL}/api/users/${user.UserID}/schedules`,
                 );
                 if (res.ok) {
                     const data = await res.json();
@@ -162,14 +163,7 @@ export default function SchedulerPage() {
                                     />
                                 </>
                             ) : (
-                                <div className="h-full flex-1 flex flex-col items-center justify-center text-muted-foreground border border-dashed border-ring/30 rounded-md bg-muted/5">
-                                    <p className="font-medium">
-                                        Schedule Plan Generator
-                                    </p>
-                                    <p className="text-sm opacity-70">
-                                        Coming soon...
-                                    </p>
-                                </div>
+                                <ScheduleGeneratorPanel userID={user.UserID} />
                             )}
                         </div>
                     </div>
