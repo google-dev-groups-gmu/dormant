@@ -41,10 +41,15 @@ func SaveSection(ctx context.Context, section types.Section) error {
 	// read courses/{courseID} to get all sections, grab the section_ids array
 	// then do a direct batch fetch for those section IDs
 
+	indexPath := "section_ids"
+	if section.IsLab {
+		indexPath = "lab_section_ids"
+	}
+
 	// firestore "ArrayUnion" adds the ID only if it's not already there
 	_, err = Client.Collection("courses").Doc(section.CourseID).Update(ctx, []firestore.Update{
 		{
-			Path:  "section_ids",
+			Path:  indexPath,
 			Value: firestore.ArrayUnion(section.ID),
 		},
 	})

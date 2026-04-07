@@ -5,10 +5,11 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 
 import CourseRequestPanel from "@/components/scheduler/plan/course-request-panel";
-import ClassTable from "@/components/scheduler/class-table";
+import ClassTimetable from "@/components/scheduler/class-timetable";
 import { Button } from "@/components/ui/button";
 import { Schedule, Section } from "@/lib/classes";
 import { BACKEND_URL } from "@/lib/constants";
+import ClassListTable from "../class-list";
 
 type ScheduleGeneratorPanelProps = {
     userID: string;
@@ -132,17 +133,19 @@ export default function ScheduleGeneratorPanel({
         scheduleSections.length > 0 ? scheduleSections[activeIndex] : [];
 
     return (
-        <div className="flex h-full gap-3">
-            <CourseRequestPanel
-                selectedCourseIDs={selectedCourseIDs}
-                onAddCourse={addCourse}
-                onRemoveCourse={removeCourse}
-                onGenerate={generate}
-                generating={generating}
-            />
+        <div className="h-full grid grid-cols-[1fr_2fr] gap-3">
+            <div className="min-w-0 h-full">
+                <CourseRequestPanel
+                    selectedCourseIDs={selectedCourseIDs}
+                    onAddCourse={addCourse}
+                    onRemoveCourse={removeCourse}
+                    onGenerate={generate}
+                    generating={generating}
+                />
+            </div>
 
-            <div className="flex h-full flex-col gap-3 rounded-md border border-ring/30 bg-white p-3">
-                <div className="flex items-center justify-between">
+            <div className="flex flex-col min-w-0 gap-3 rounded-md border border-ring/30 bg-white p-3 h-full overflow-hidden">
+                <div className="flex items-center justify-between shrink-0">
                     <div>
                         <h3 className="text-sm font-semibold text-foreground">
                             Generated Timetables
@@ -178,7 +181,10 @@ export default function ScheduleGeneratorPanel({
                     )}
                 </div>
 
-                <ClassTable schedule={activeSchedule} />
+                <div className="flex flex-col w-full gap-3 overflow-y-auto flex-1 min-h-0">
+                    <ClassListTable schedule={activeSchedule} />
+                    <ClassTimetable schedule={activeSchedule} />
+                </div>
             </div>
         </div>
     );

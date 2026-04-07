@@ -75,10 +75,22 @@ func GenerateSchedule(c *gin.Context) {
 		return
 	}
 
+	// make sure we deduplicate and clean IDs before sending to scheduler
+	uniqueCourses := make([]string, 0, len(req.CourseIDs))
+	seen := make(map[string]bool)
+	for _, cid := range req.CourseIDs {
+		// simple normalization here; the scheduler re-normalizes internally too
+		// but this guarantees unique IDs at the entrypoint
+		if !seen[cid] {
+			seen[cid] = true
+			uniqueCourses = append(uniqueCourses, cid)
+		}
+	}
+
 	// 1. fetch section data from firestore
 	// 2. run backtracking algorithm to generate valid schedules
 	// 3. save results to schedules collection
-	generatedSchedules, err := scheduler.Run(c.Request.Context(), req.CourseIDs, req.UserID)
+	generatedSchedules, err := scheduler.Run(c.Request.Context(), uniqueCourses, req.UserID)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

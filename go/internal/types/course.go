@@ -10,6 +10,8 @@ type Course struct {
 
 	// list of section IDs for this course
 	SectionIDs []string `json:"section_ids" firestore:"section_ids"`
+	// list of lab section IDs for this course
+	LabSectionIDs []string `json:"lab_section_ids" firestore:"lab_section_ids"`
 }
 
 type Section struct {
@@ -17,6 +19,9 @@ type Section struct {
 	CourseID  string `json:"course_id" firestore:"course_id"` // "CS110"
 	Section   string `json:"section" firestore:"section"`     // "001"
 	Professor string `json:"professor" firestore:"professor"`
+	IsLab     bool   `json:"is_lab" firestore:"is_lab"`
+	// section_type is "lecture" when section starts with 0, otherwise "lab"
+	SectionType string `json:"section_type" firestore:"section_type"`
 
 	// backend data for algorithm
 	Meetings []Meeting `json:"meetings" firestore:"meetings"`

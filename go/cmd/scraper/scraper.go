@@ -311,10 +311,14 @@ func getStr(s *string) string {
 
 // parse into section type
 func parseBannerSection(raw types.BannerSection) types.Section {
+	sectionType, isLab := classifySection(raw.SequenceNumber)
+
 	sec := types.Section{
-		ID:       raw.CRN,                        // CRN as the unique ID
-		CourseID: raw.Subject + raw.CourseNumber, // ex) CS100
-		Section:  raw.SequenceNumber,
+		ID:          raw.CRN,                        // CRN as the unique ID
+		CourseID:    raw.Subject + raw.CourseNumber, // ex) CS100
+		Section:     raw.SequenceNumber,
+		IsLab:       isLab,
+		SectionType: sectionType,
 		// first professor if available
 		Professor: "TBA",
 	}
@@ -360,6 +364,19 @@ func parseBannerSection(raw types.BannerSection) types.Section {
 		}
 	}
 	return sec
+}
+
+func classifySection(section string) (sectionType string, isLab bool) {
+	normalized := strings.TrimSpace(section)
+	if normalized == "" {
+		return "lecture", false
+	}
+
+	if strings.HasPrefix(normalized, "0") {
+		return "lecture", false
+	}
+
+	return "lab", true
 }
 
 // fetch all subjects from banner

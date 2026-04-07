@@ -7,16 +7,6 @@ package scheduler
 // this is where we generate schedules from scratch
 // and feed it to user so they can pick and choose
 
-// this will be worked on with GDG members during winter
-// im trying as hard as i can do manage life + work :(
-
-// mental health is very important yall
-// please take care of yourselves
-// it seems like you wont make it through this time
-// but you know you will
-// we will make it through this together
-// :)
-
 import (
 	"context"
 	"fmt"
@@ -146,7 +136,7 @@ func generatePermutations(courseIDs []string, courses map[string][]types.Section
 	return results
 }
 
-// Time complexity (worst case): O(d^n * n^2), where n=requested courses and d=avg sections/course.
+// time complexity worst case: O(d^n * n^2), where n=requested courses and d=avg sections/course.
 // MRV + forward checking prune many invalid branches in practical workloads.
 
 func sortByMRV(courseIDs []string, courseBuckets map[string][]types.Section) []string {
@@ -188,23 +178,24 @@ func forwardCheck(
 	assignment map[string]types.Section,
 	domains map[string][]types.Section,
 ) (map[string][]types.Section, bool) {
+	// Deep clone the domains to modify for this specific branch
 	next := cloneDomains(domains)
 
 	for _, courseID := range courseIDs {
-		if courseID == assignedCourseID {
-			continue
-		}
-		if _, done := assignment[courseID]; done {
+		// skip the one we just assigned and anything already assigned
+		if _, done := assignment[courseID]; done || courseID == assignedCourseID {
 			continue
 		}
 
 		filtered := make([]types.Section, 0, len(next[courseID]))
 		for _, section := range next[courseID] {
+			// keep it ONLY if it DOES NOT overlap
 			if !sectionsOverlap(assignedSection, section) {
 				filtered = append(filtered, section)
 			}
 		}
 
+		// if a course has zero valid sections remaining, this path is a dead end
 		if len(filtered) == 0 {
 			return nil, false
 		}
@@ -235,16 +226,16 @@ func isSectionCompatible(candidate types.Section, assignment map[string]types.Se
 func sectionsOverlap(a, b types.Section) bool {
 	for _, am := range a.Meetings {
 		for _, bm := range b.Meetings {
-			if am.Day != bm.Day {
-				continue
-			}
-
-			if am.StartTime < bm.EndTime && bm.StartTime < am.EndTime {
-				return true
+			// same day
+			if am.Day == bm.Day {
+				// check overlap exclusively (one starts before another ends)
+				if am.StartTime < bm.EndTime && bm.StartTime < am.EndTime {
+					return true // overlap detected
+				}
 			}
 		}
 	}
-	return false
+	return false // no overlap
 }
 
 func normalizeCourseID(courseID string) string {

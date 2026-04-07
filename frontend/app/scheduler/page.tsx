@@ -10,8 +10,9 @@ import { useAuth } from "@/lib/utils";
 import gdg_logo from "@/public/logo.png";
 
 import { Spinner } from "@/components/ui/spinner";
-import ClassList from "@/components/scheduler/class-list";
-import ClassTable from "@/components/scheduler/class-table";
+import ClassList from "@/components/scheduler/add-class";
+import ClassListTable from "@/components/scheduler/class-list";
+import ClassTimetable from "@/components/scheduler/class-timetable";
 import ScheduleGeneratorPanel from "@/components/scheduler/plan/schedule-generator-panel";
 import { BACKEND_URL } from "@/lib/constants";
 import { Section } from "@/lib/classes";
@@ -157,10 +158,15 @@ export default function SchedulerPage() {
                                         onUpdate={handleScheduleUpdate}
                                     />
 
-                                    <ClassTable
-                                        schedule={currentSchedule}
-                                        onUpdate={handleScheduleUpdate}
-                                    />
+                                    <div className="flex-1 flex flex-col xl:grid xl:grid-cols-2 gap-3">
+                                        <ClassListTable
+                                            schedule={currentSchedule}
+                                            onUpdate={handleScheduleUpdate}
+                                        />
+                                        <ClassTimetable
+                                            schedule={currentSchedule}
+                                        />
+                                    </div>
                                 </>
                             ) : (
                                 <ScheduleGeneratorPanel userID={user.UserID} />

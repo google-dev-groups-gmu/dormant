@@ -53,7 +53,7 @@ export default function CourseRequestPanel({
     );
 
     return (
-        <div className="flex h-full flex-col gap-3 rounded-md border border-ring/30 bg-white p-3">
+        <div className="flex w-full h-full flex-col gap-3 rounded-md border border-ring/30 bg-white p-3">
             <div className="space-y-1">
                 <h3 className="text-sm font-semibold text-foreground">
                     Required Classes
@@ -63,40 +63,48 @@ export default function CourseRequestPanel({
                 </p>
             </div>
 
-            <Input
-                value={query}
-                onChange={(event) => setQuery(event.target.value.toUpperCase())}
-                placeholder="Search course (e.g. CS110)"
-                className="h-8"
-            />
+            <div className="relative">
+                <Input
+                    value={query}
+                    onChange={(event) =>
+                        setQuery(event.target.value.toUpperCase())
+                    }
+                    placeholder="Search course (e.g. CS110)"
+                    className="h-8"
+                />
 
-            <div className="max-h-48 overflow-y-auto rounded-md border border-ring/30">
-                {results.length === 0 ? (
-                    <p className="px-3 py-2 text-xs text-muted-foreground">
-                        Type at least 2 characters to search.
-                    </p>
-                ) : (
-                    results.map((course) => {
-                        const isAdded = selectedSet.has(course.id);
-                        return (
-                            <button
-                                key={course.id}
-                                type="button"
-                                className="flex w-full items-center justify-between border-b border-ring/20 px-3 py-2 text-left text-sm last:border-b-0 hover:bg-muted/40 disabled:cursor-not-allowed disabled:opacity-50"
-                                disabled={isAdded}
-                                onClick={() => onAddCourse(course.id)}
-                            >
-                                <span className="font-medium">{course.id}</span>
-                                <span className="text-xs text-muted-foreground">
-                                    {isAdded ? "Added" : course.title}
-                                </span>
-                            </button>
-                        );
-                    })
+                {results.length > 0 && query.length >= 2 && (
+                    <div className="border border-ring/30 rounded mt-1 bg-white absolute w-full max-h-48 overflow-y-auto z-10 shadow-lg">
+                        {results.map((course) => {
+                            const isAdded = selectedSet.has(course.id);
+                            return (
+                                <Button
+                                    key={course.id}
+                                    type="button"
+                                    size="sm"
+                                    variant="ghost"
+                                    className="flex w-full items-center justify-between border-b border-ring/20 px-3 py-2 text-left text-sm last:border-b-0 hover:bg-muted/40 disabled:cursor-not-allowed disabled:opacity-50 hover:cursor-pointer"
+                                    disabled={isAdded}
+                                    onClick={() => {
+                                        onAddCourse(course.id);
+                                        setQuery("");
+                                        setResults([]);
+                                    }}
+                                >
+                                    <span className="font-medium">
+                                        {course.id}
+                                    </span>
+                                    <span className="text-xs text-muted-foreground">
+                                        {isAdded ? "Added" : course.title}
+                                    </span>
+                                </Button>
+                            );
+                        })}
+                    </div>
                 )}
             </div>
 
-            <div className="rounded-md border border-ring/30 p-2">
+            <div className="rounded-md border border-ring/30 p-2 flex-1 overflow-y-auto">
                 <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                     Selected ({selectedCourseIDs.length})
                 </p>
