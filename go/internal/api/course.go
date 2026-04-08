@@ -3,7 +3,6 @@ package api
 import (
 	"net/http"
 
-	"github.com/Google-Developer-Groups-GMU/dormant/go/internal/catalog"
 	"github.com/Google-Developer-Groups-GMU/dormant/go/internal/firestore"
 	"github.com/gin-gonic/gin"
 )
@@ -18,7 +17,11 @@ func HandleSearchCourses(c *gin.Context) {
 		return
 	}
 
-	results := catalog.SearchCourses(query)
+	results, err := firestore.SearchCourses(c.Request.Context(), query, 20)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 	c.JSON(http.StatusOK, results)
 }
 
