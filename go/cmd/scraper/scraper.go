@@ -116,14 +116,18 @@ func main() {
 	resp.Body.Close()
 
 	// search for classes
-	// use this to get all subjects in prod
-	subjects, err := GetSubjects(client, token)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// NOTE: if you get all subjects into your firestore, you will end up reading 2k+ documents per search,
+	// which can be costly. for dev purposes, we just test with 3 subjects.
 
-	// in local we are only testing CS and MATH
-	// var subjects = []string{"CS", "MATH"}
+	// use this to get all subjects in prod
+	// subjects, err := GetSubjects(client, token)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// in local we are only testing CS, ENGH and MATH
+	subjects := []string{"CS", "ENGH", "MATH"}
+
 	fmt.Printf("== 3 == fetching classes for %s...\n", subjects)
 
 	// for concurrency
